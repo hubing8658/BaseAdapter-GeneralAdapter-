@@ -1,0 +1,3 @@
+# BaseAdapter-GeneralAdapter-
+通用Adapter基类，其他要实现Adapter的只要继承此类GeneralAdapter，实现convert方法即可，省去重写getView等方法，节省
+直接继承BaseAdapter，重写多个方法的开发时间
