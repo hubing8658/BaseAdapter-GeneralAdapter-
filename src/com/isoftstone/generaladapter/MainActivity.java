@@ -5,40 +5,102 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.graphics.Color;
+import android.content.Context;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
+
+    /** 显示左边item */
+    static final int TYPE_LEFT = 0;
+
+    /** 显示右边item */
+    static final int TYPE_RIGHT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ListView lv = (ListView) findViewById(R.id.lv);
-        List<String> data = new ArrayList<String>();
-        for (int i = 0; i < 30; i++) {
-            data.add(getString(R.string.hello_world) + i);
-        }
-        GeneralAdapter<String> adapter = new GeneralAdapter<String>(this, R.layout.item_view, data) {
-            @Override
-            public void convert(ViewHolder holder, String item, int position) {
-                Button btn = (Button) holder.getView(R.id.btn);
-                TextView tv = (TextView) holder.getView(R.id.tv);
-                btn.setText(item);
-                btn.setBackgroundColor(Color.DKGRAY);
-                tv.setText(item);
-            }
-        };
-        lv.setAdapter(adapter);
+        lv.setAdapter(new MultItemAdapter(this, getTestData()));
+    }
 
-        String[] data1 = new String[10];
-        for (int i = 0; i < data1.length; i++) {
-            data1[i] = getString(R.string.hello_world) + (i + 80);
+    /**
+     * 生成测试列表数据
+     * 
+     * @return
+     * @author hubing
+     */
+    ArrayList<ItemData> getTestData() {
+        ArrayList<ItemData> data = new ArrayList<>();
+
+        ItemData itemData;
+        for (int i = 0; i < 50; i++) {
+            itemData = new ItemData();
+            itemData.itemType = Math.round(Math.random()) % 2 == 0 ? TYPE_LEFT : TYPE_RIGHT;
+            if (itemData.itemType == TYPE_LEFT) {
+                itemData.title = "我是左边标题:" + i;
+                itemData.subtitle = "我是左边子标题:" + i;
+            } else {
+                itemData.title = "我是右边标题:" + i;
+                itemData.subtitle = "我是右边子标题:" + i;
+            }
+            data.add(itemData);
         }
-        adapter.addAll(data1);
+
+        return data;
+    }
+
+    /**
+     * 多item布局Adapter
+     * 
+     * @author hubing
+     * @version [1.0.0.0, 2016-4-29]
+     */
+    class MultItemAdapter extends GeneralAdapter<ItemData> {
+
+        public MultItemAdapter(Context ctx, List<ItemData> data) {
+            super(ctx, data);
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return 2;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return getItem(position).itemType;
+        }
+
+        @Override
+        public int getItemLayoutId(int itemViewType) {
+            // 根据不同的item类型，使用不同的item布局
+            if (itemViewType == TYPE_LEFT) {
+                return R.layout.item_left;
+            } else if (itemViewType == TYPE_RIGHT) {
+                return R.layout.item_right;
+            }
+            return 0;
+        }
+
+        @Override
+        public void convert(ViewHolder holder, ItemData item, int position) {
+            int itemType = item.itemType;
+            if (itemType == TYPE_LEFT) {
+                TextView titleTv = holder.getView(R.id.tv_left_title);
+                titleTv.setText(item.title);
+                TextView subtitleTv = holder.getView(R.id.tv_left_subtitle);
+                subtitleTv.setText(item.subtitle);
+            } else if (itemType == TYPE_RIGHT) {
+                TextView titleTv = holder.getView(R.id.tv_right_title);
+                titleTv.setText(item.title);
+                TextView subtitleTv = holder.getView(R.id.tv_right_subtitle);
+                subtitleTv.setText(item.subtitle);
+            }
+        }
+
     }
 
 }
