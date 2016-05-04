@@ -16,7 +16,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 /**
- * 通用Adapter基类，其他要实现Adapter的只要继承此类，实现convert方法即可
+ * 通用Adapter基类，其他要实现Adapter的只要继承此类，实现convert和getItemLayoutId方法即可
+ * <p>
+ * <li> {@link #getItemLayoutId} 实现此方法来设置item的布局资源id，可根据不同的item类型来设置不同的布局
+ * <li> {@link #convert} 实现此方法来设置item界面数据
+ * </p>
  * 
  * @author hubing
  * @version 1.0.0 2015-4-10
@@ -29,19 +33,13 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
 
     private int maxCount = 1000; // ListView中最大显示数据条数
 
-    /**
-     * E 对象列表
-     */
-    private List<E> data = new ArrayList<E>();
+    /** E 对象列表 */
+    private List<E> mData = new ArrayList<E>();
 
-    /**
-     * 上下文
-     */
-    private Context ctx;
+    /** 上下文 */
+    private Context mContext;
 
-    /**
-     * 锁对象
-     */
+    /** 锁对象 */
     private final Object mLock = new Object();
 
     /**
@@ -52,7 +50,7 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      * @author hubing
      */
     public GeneralAdapter(Context ctx, List<E> data) {
-        this.ctx = ctx;
+        this.mContext = ctx;
         setData(data);
     }
 
@@ -63,9 +61,9 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     public void setData(List<E> data) {
         synchronized (mLock) {
-            this.data.clear();
+            this.mData.clear();
             if (data != null && data.size() > 0) {
-                this.data.addAll(data);
+                this.mData.addAll(data);
                 checkListSize();
             } else {
                 notifyDataSetChanged();
@@ -79,7 +77,7 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      * @return 当前adapter中的列表数据
      */
     public List<E> getData() {
-        return data;
+        return mData;
     }
 
     /**
@@ -90,8 +88,8 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     public void add(E object) {
         synchronized (mLock) {
-            if (data != null) {
-                data.add(object);
+            if (object != null) {
+                mData.add(object);
                 checkListSize();
             }
         }
@@ -105,8 +103,8 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     public void addAll(Collection<? extends E> collection) {
         synchronized (mLock) {
-            if (data != null) {
-                data.addAll(collection);
+            if (collection != null) {
+                mData.addAll(collection);
                 checkListSize();
             }
         }
@@ -120,9 +118,9 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     public void addAll(E[] arrays) {
         synchronized (mLock) {
-            if (data != null) {
+            if (arrays != null) {
                 // Arrays.asList(arrays) 重新封装一层，支持对List 操作
-                data.addAll(new ArrayList<E>(Arrays.asList(arrays)));
+                mData.addAll(new ArrayList<E>(Arrays.asList(arrays)));
                 checkListSize();
             }
         }
@@ -136,8 +134,8 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     public void addAllToHead(Collection<? extends E> collection) {
         synchronized (mLock) {
-            if (data != null) {
-                data.addAll(0, collection);
+            if (collection != null) {
+                mData.addAll(0, collection);
                 checkListSize();
             }
         }
@@ -152,8 +150,8 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     public void insert(E object, int index) {
         synchronized (mLock) {
-            if (data != null) {
-                data.add(index, object);
+            if (object != null) {
+                mData.add(index, object);
                 notifyDataSetChanged();
             }
         }
@@ -167,8 +165,8 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     public void remove(E object) {
         synchronized (mLock) {
-            if (data != null) {
-                data.remove(object);
+            if (object != null) {
+                mData.remove(object);
                 notifyDataSetChanged();
             }
         }
@@ -181,8 +179,8 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     public void clear() {
         synchronized (mLock) {
-            if (data != null) {
-                data.clear();
+            if (mData != null) {
+                mData.clear();
                 notifyDataSetChanged();
             }
         }
@@ -195,8 +193,8 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     public void sort(Comparator<? super E> comparator) {
         synchronized (mLock) {
-            if (data != null) {
-                Collections.sort(data, comparator);
+            if (comparator != null) {
+                Collections.sort(mData, comparator);
                 notifyDataSetChanged();
             }
         }
@@ -208,9 +206,9 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      * @author hubing
      */
     protected void checkListSize() {
-        int totalCount = data.size();
+        int totalCount = mData.size();
         if (totalCount > maxCount) {
-            data = data.subList(totalCount - maxCount, totalCount);
+            mData = mData.subList(totalCount - maxCount, totalCount);
         }
         this.notifyDataSetChanged();
     }
@@ -236,12 +234,13 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
     }
 
     /**
-     * Returns the context associated with this array adapter. The context is used to create views from the resource passed to the constructor.
+     * Returns the context associated with this array adapter.<br>
+     * The context is used to create views from the resource passed to the constructor.
      * 
      * @return The Context associated with this adapter.
      */
     public Context getContext() {
-        return ctx;
+        return mContext;
     }
 
     /**
@@ -249,7 +248,7 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     @Override
     public int getCount() {
-        return this.data.size();
+        return this.mData.size();
     }
 
     /**
@@ -257,7 +256,7 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     @Override
     public E getItem(int position) {
-        return data.get(position);
+        return mData.get(position);
     }
 
     /**
@@ -267,7 +266,7 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      * @return The position of the specified item.
      */
     public int getPosition(E item) {
-        return data.indexOf(item);
+        return mData.indexOf(item);
     }
 
     /**
@@ -283,7 +282,7 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder = ViewHolder.get(ctx, getItemLayoutId(getItemViewType(position)), convertView, parent);
+        ViewHolder holder = ViewHolder.get(mContext, getItemLayoutId(getItemViewType(position)), convertView, parent);
         convert(holder, getItem(position), position);
         return holder.getConvertView();
     }
@@ -294,6 +293,8 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      * @param itemViewType item类型
      * @return 当前Item布局资源id
      * @author hubing
+     * @see #getViewTypeCount()
+     * @see #getItemViewType(int)
      */
     public abstract int getItemLayoutId(int itemViewType);
 

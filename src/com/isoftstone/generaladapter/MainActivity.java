@@ -79,10 +79,8 @@ public class MainActivity extends Activity {
             // 根据不同的item类型，使用不同的item布局
             if (itemViewType == TYPE_LEFT) {
                 return R.layout.item_left;
-            } else if (itemViewType == TYPE_RIGHT) {
-                return R.layout.item_right;
             }
-            return 0;
+            return R.layout.item_right;
         }
 
         @Override
@@ -93,7 +91,7 @@ public class MainActivity extends Activity {
                 titleTv.setText(item.title);
                 TextView subtitleTv = holder.getView(R.id.tv_left_subtitle);
                 subtitleTv.setText(item.subtitle);
-            } else if (itemType == TYPE_RIGHT) {
+            } else {
                 TextView titleTv = holder.getView(R.id.tv_right_title);
                 titleTv.setText(item.title);
                 TextView subtitleTv = holder.getView(R.id.tv_right_subtitle);
