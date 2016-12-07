@@ -45,9 +45,8 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
     /**
      * 构造函数
      * 
-     * @param resource item布局文件
-     * @param data 需要展示的列表
-     * @author hubing
+     * @param ctx 上下文
+     * @param data 需要展示的列表数据
      */
     public GeneralAdapter(Context ctx, List<E> data) {
         this.mContext = ctx;
@@ -282,15 +281,16 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder = ViewHolder.get(mContext, getItemLayoutId(getItemViewType(position)), convertView, parent);
-        convert(holder, getItem(position), position);
+        int itemViewType = getItemViewType(position);
+        ViewHolder holder = ViewHolder.get(mContext, getItemLayoutId(itemViewType), convertView, parent);
+        convert(holder, getItem(position), position, itemViewType);
         return holder.getConvertView();
     }
 
     /**
      * 获取Item布局资源id
      * 
-     * @param itemViewType item类型
+     * @param itemViewType item的视图类型
      * @return 当前Item布局资源id
      * @author hubing
      * @see #getViewTypeCount()
@@ -304,8 +304,9 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
      * @param holder ViewHolder对象
      * @param item getView中ListView对应的实体对象
      * @param position position The position of the item within the adapter's data set of the item whose view we want.
+     * @param itemViewType item的视图类型
      */
-    public abstract void convert(ViewHolder holder, E item, int position);
+    public abstract void convert(ViewHolder holder, E item, int position, int itemViewType);
 
     /**
      * ViewHolder类
@@ -374,5 +375,7 @@ public abstract class GeneralAdapter<E> extends BaseAdapter {
             }
             return (V) view;
         }
+
     }
+
 }

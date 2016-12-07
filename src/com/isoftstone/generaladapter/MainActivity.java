@@ -24,6 +24,9 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         ListView lv = (ListView) findViewById(R.id.lv);
         lv.setAdapter(new MultItemAdapter(this, getTestData()));
+        TextView view = new TextView(this);
+        view.setText("==这是头部==");
+        lv.addHeaderView(view);
     }
 
     /**
@@ -84,9 +87,8 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        public void convert(ViewHolder holder, ItemData item, int position) {
-            int itemType = item.itemType;
-            if (itemType == TYPE_LEFT) {
+        public void convert(ViewHolder holder, ItemData item, int position, int itemViewType) {
+            if (itemViewType == TYPE_LEFT) {
                 TextView titleTv = holder.getView(R.id.tv_left_title);
                 titleTv.setText(item.title);
                 TextView subtitleTv = holder.getView(R.id.tv_left_subtitle);
